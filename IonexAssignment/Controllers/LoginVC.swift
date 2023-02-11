@@ -9,8 +9,11 @@ import Foundation
 import UIKit
 
 class LoginVC: UIViewController, Coordinating {
+    
+    // MARK: - Properties
     var coordinator: Coordinator?
     private let borderWidth = 0.5
+    private let viewModel = LoginViewModel()
     
     // MARK: - UI Component
     private lazy var titleLabel: UILabel = {
@@ -74,6 +77,7 @@ class LoginVC: UIViewController, Coordinating {
         super.viewDidLoad()
         view.backgroundColor = .white
         setupConstraints()
+        setupBinders()
     }
     
     // MARK: - Private Func
@@ -115,10 +119,24 @@ class LoginVC: UIViewController, Coordinating {
         ])
     }
     
-    func highlightTextField(_ textField: UITextField) {
+    private func highlightTextField(_ textField: UITextField) {
         textField.resignFirstResponder()
         textField.layer.borderWidth = borderWidth
         textField.layer.borderColor = UIColor.red.cgColor        
+    }
+    
+    private func setupBinders() {
+        viewModel.loginErrorDescription.bind { [weak self] value in
+            self?.loginErrorDescriptionLabel.text = value
+        }
+        
+        viewModel.error.bind { [weak self] error in
+            if let error = error {
+                // do some error handle
+            } else {
+                // go to next page
+            }
+        }
     }
     
     @objc private func loginButtonPressed() {
