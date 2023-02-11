@@ -12,7 +12,7 @@ class MainCoordinator: Coordinator {
     var navigationController: UINavigationController?
     
     func start() {
-        var vc: UIViewController & Coordinating = ViewController()
+        var vc: UIViewController & Coordinating = LoginVC()
         vc.coordinator = self
         navigationController?.setViewControllers([vc], animated: false)
     }
