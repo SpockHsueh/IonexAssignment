@@ -11,4 +11,6 @@ struct User: Codable {
     let username: String
     let timezone: Int
     let phone: String
+    let objectId: String
+    let sessionToken: String
 }
