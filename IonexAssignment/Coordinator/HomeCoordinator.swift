@@ -24,7 +24,12 @@ class HomeCoordinator: Coordinator {
     }
     
     func eventOccurred(with type: Event) {
-        
+        switch type {
+        case .navigationToLogin:
+            _ = navigationController?.popToRootViewController(animated: false)
+        case .navigateToHome:
+            break
+        }
     }
     
     deinit {

@@ -153,6 +153,9 @@ class LoginVC: UIViewController, Coordinating {
         viewModel.userInfo.bind {[ weak self] user in
             if let user = user {
                 self?.coordinator?.eventOccurred(with: .navigateToHome(user: user))
+                self?.usernameTextField.text = nil
+                self?.passwordTextField.text = nil
+                self?.view.endEditing(true)
             }
         }
     }
@@ -200,4 +203,5 @@ extension LoginVC: UITextFieldDelegate {
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         self.view.endEditing(true)
     }
+
 }

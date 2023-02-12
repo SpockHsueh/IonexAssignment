@@ -34,6 +34,8 @@ class LoginCoordinator: Coordinator {
             homeCoordinator.start()
             
             parentCoordinator?.childDidFinish(self)
+        case .navigationToLogin:
+            break
         }
     }
         

@@ -10,6 +10,7 @@ import UIKit
 
 enum Event {
     case navigateToHome(user: User)
+    case navigationToLogin
 }
 
 protocol Coordinator: AnyObject {
