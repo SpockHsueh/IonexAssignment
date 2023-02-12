@@ -14,6 +14,8 @@ class LoginVC: UIViewController, Coordinating {
     var coordinator: Coordinator?
     private let borderWidth = 0.5
     private let viewModel = LoginViewModel()
+    private var showErrorDescription: NSLayoutConstraint?
+    private var dismissErrorDescription: NSLayoutConstraint?
     
     // MARK: - UI Component
     private lazy var titleLabel: UILabel = {
@@ -53,11 +55,10 @@ class LoginVC: UIViewController, Coordinating {
     
     private lazy var loginErrorDescriptionLabel: UILabel = {
         let label = UILabel()
-        label.text = "test"
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.numberOfLines = 0
         label.textColor = .red
         label.textAlignment = .center
+        label.numberOfLines = 0
         return label
     }()
     
@@ -83,10 +84,15 @@ class LoginVC: UIViewController, Coordinating {
     // MARK: - Private Func
     private func setupConstraints() {
         view.addSubview(titleLabel)
-        view.addSubview(loginErrorDescriptionLabel)
         view.addSubview(usernameTextField)
         view.addSubview(passwordTextField)
+        view.addSubview(loginErrorDescriptionLabel)
         view.addSubview(loginButton)
+        
+        showErrorDescription = loginErrorDescriptionLabel.heightAnchor.constraint(equalToConstant: 60)
+        dismissErrorDescription = loginErrorDescriptionLabel.heightAnchor.constraint(equalToConstant: 0)
+        showErrorDescription?.isActive = false
+        dismissErrorDescription?.isActive = true
         
         NSLayoutConstraint.activate([
             titleLabel.widthAnchor.constraint(equalToConstant: 150),
@@ -94,18 +100,17 @@ class LoginVC: UIViewController, Coordinating {
             titleLabel.heightAnchor.constraint(equalToConstant: 50),
             titleLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             
-            loginErrorDescriptionLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 50),
-            loginErrorDescriptionLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -50),
+            loginErrorDescriptionLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 30),
+            loginErrorDescriptionLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -30),
             loginErrorDescriptionLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 50),
-            
             loginErrorDescriptionLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-                                    
+            
             usernameTextField.topAnchor.constraint(equalTo: loginErrorDescriptionLabel.bottomAnchor, constant: 20),
             usernameTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 50),
             usernameTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -50),
             usernameTextField.heightAnchor.constraint(equalToConstant: 40),
             usernameTextField.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-                        
+            
             passwordTextField.topAnchor.constraint(equalTo: usernameTextField.bottomAnchor, constant: 20),
             passwordTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 50),
             passwordTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -50),
@@ -119,15 +124,30 @@ class LoginVC: UIViewController, Coordinating {
         ])
     }
     
-    private func highlightTextField(_ textField: UITextField) {
+    private func highlightTextField(_ textField: UITextField?) {
+        
+        guard let textField = textField else {
+            return
+        }
         textField.resignFirstResponder()
         textField.layer.borderWidth = borderWidth
-        textField.layer.borderColor = UIColor.red.cgColor        
+        textField.layer.borderColor = UIColor.red.cgColor
     }
     
     private func setupBinders() {
         viewModel.loginErrorDescription.bind { [weak self] value in
-            self?.loginErrorDescriptionLabel.text = value
+            if let value = value {
+                self?.loginErrorDescriptionLabel.text = value
+                self?.handleErrorDescriptionConstraint(isShow: true)
+            }
+        }
+        
+        viewModel.isUsernameTextFieldHighLighted.bind { [weak self] in
+            if $0 { self?.highlightTextField(self?.usernameTextField)}
+        }
+        
+        viewModel.isPasswordTextFieldHighLighted.bind { [weak self] in
+            if $0 { self?.highlightTextField(self?.passwordTextField)}
         }
         
         viewModel.error.bind { [weak self] error in
@@ -141,22 +161,45 @@ class LoginVC: UIViewController, Coordinating {
     
     @objc private func loginButtonPressed() {
         
+        viewModel.updateCredentials(username: usernameTextField.text ?? "",
+                                    password: passwordTextField.text ?? "")
+        
+        switch viewModel.checkInput() {
+            
+        case .Correct:
+            login()
+        case .Incorrect:
+            return
+        }
+    }
+    
+    private func login() {
+        viewModel.login()
+    }
+    
+    private func handleErrorDescriptionConstraint(isShow: Bool) {
+        UIView.animate(withDuration: 0.3, delay: 0, options: .curveEaseOut, animations: {
+            self.showErrorDescription?.isActive = isShow
+            self.dismissErrorDescription?.isActive = !isShow
+            self.view.layoutIfNeeded()
+        }, completion: nil)
     }
 }
 
+// MARK: - TextFieldDelegate
 extension LoginVC: UITextFieldDelegate {
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-           usernameTextField.resignFirstResponder()
-           passwordTextField.resignFirstResponder()
-           return true
-       }
-       
-       func textFieldDidBeginEditing(_ textField: UITextField) {
-           loginErrorDescriptionLabel.isHidden = true
-           textField.layer.borderColor = UIColor.gray.cgColor
-       }
-       
-       override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-           self.view.endEditing(true)
-       }
+        usernameTextField.resignFirstResponder()
+        passwordTextField.resignFirstResponder()
+        return true
+    }
+    
+    func textFieldDidBeginEditing(_ textField: UITextField) {
+        textField.layer.borderColor = UIColor.gray.cgColor
+        handleErrorDescriptionConstraint(isShow: false)
+    }
+    
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        self.view.endEditing(true)
+    }
 }
