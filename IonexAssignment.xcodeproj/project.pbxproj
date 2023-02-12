@@ -16,6 +16,8 @@
 		6AC821F629972CD8007F6548 /* LoginVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AC821F529972CD8007F6548 /* LoginVC.swift */; };
 		6AC821F92997D6AA007F6548 /* LoginViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AC821F82997D6A9007F6548 /* LoginViewModel.swift */; };
 		6AC821FB2997D701007F6548 /* ObserableObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AC821FA2997D701007F6548 /* ObserableObject.swift */; };
+		6AC822032997F0AE007F6548 /* LoginService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AC822022997F0AE007F6548 /* LoginService.swift */; };
+		6AC822062997F148007F6548 /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AC822052997F148007F6548 /* User.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -30,6 +32,8 @@
 		6AC821F529972CD8007F6548 /* LoginVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginVC.swift; sourceTree = "<group>"; };
 		6AC821F82997D6A9007F6548 /* LoginViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewModel.swift; sourceTree = "<group>"; };
 		6AC821FA2997D701007F6548 /* ObserableObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ObserableObject.swift; sourceTree = "<group>"; };
+		6AC822022997F0AE007F6548 /* LoginService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginService.swift; sourceTree = "<group>"; };
+		6AC822052997F148007F6548 /* User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -62,6 +66,8 @@
 		6AC821DA299541B1007F6548 /* IonexAssignment */ = {
 			isa = PBXGroup;
 			children = (
+				6AC822042997F13F007F6548 /* Model */,
+				6AC822012997F099007F6548 /* Service */,
 				6AC821DB299541B1007F6548 /* AppDelegate.swift */,
 				6AC821DD299541B1007F6548 /* SceneDelegate.swift */,
 				6AC821FA2997D701007F6548 /* ObserableObject.swift */,
@@ -98,6 +104,22 @@
 				6AC821F82997D6A9007F6548 /* LoginViewModel.swift */,
 			);
 			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		6AC822012997F099007F6548 /* Service */ = {
+			isa = PBXGroup;
+			children = (
+				6AC822022997F0AE007F6548 /* LoginService.swift */,
+			);
+			path = Service;
+			sourceTree = "<group>";
+		};
+		6AC822042997F13F007F6548 /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				6AC822052997F148007F6548 /* User.swift */,
+			);
+			path = Model;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -175,8 +197,10 @@
 				6AC821F92997D6AA007F6548 /* LoginViewModel.swift in Sources */,
 				6AC821FB2997D701007F6548 /* ObserableObject.swift in Sources */,
 				6AC821DC299541B1007F6548 /* AppDelegate.swift in Sources */,
+				6AC822062997F148007F6548 /* User.swift in Sources */,
 				6AC821F3299548B3007F6548 /* MainCoordinator.swift in Sources */,
 				6AC821DE299541B1007F6548 /* SceneDelegate.swift in Sources */,
+				6AC822032997F0AE007F6548 /* LoginService.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
