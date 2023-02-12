@@ -54,7 +54,9 @@ struct LoginService {
             
             do {
                 let loginResult = try JSONDecoder().decode(User.self, from: data)
-                completion(.success(loginResult))
+                DispatchQueue.main.async {
+                    completion(.success(loginResult))
+                }                
             } catch {
                 DispatchQueue.main.async {
                     completion(.failure(error))

@@ -11,7 +11,6 @@ class LoginViewModel {
     
     var loginErrorDescription: ObserableObject<String?> = ObserableObject(nil)
     var userInfo:  ObserableObject<User?> = ObserableObject(nil)
-    var error: ObserableObject<String?> = ObserableObject(nil)
     var isUsernameTextFieldHighLighted: ObserableObject<Bool> = ObserableObject(false)
     var isPasswordTextFieldHighLighted: ObserableObject<Bool> = ObserableObject(false)
     private var username = ""
