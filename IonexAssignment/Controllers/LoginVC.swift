@@ -150,11 +150,9 @@ class LoginVC: UIViewController, Coordinating {
             if $0 { self?.highlightTextField(self?.passwordTextField)}
         }
         
-        viewModel.error.bind { [weak self] error in
-            if let error = error {
-                // do some error handle
-            } else {
-                // go to next page
+        viewModel.userInfo.bind {[ weak self] user in
+            if let user = user {
+                self?.coordinator?.eventOccurred(with: .navigateToHome(user: user))
             }
         }
     }
