@@ -43,7 +43,7 @@ struct LoginService {
         
         request.httpBody = httpBody
 
-        URLSession.shared.dataTask(with: request) { data, _, error in
+        URLSession.shared.dataTask(with: request) { data, response, error in
             
             if let error = error {
                 DispatchQueue.main.async {
@@ -55,6 +55,21 @@ struct LoginService {
             guard let data = data else {
                 DispatchQueue.main.async {
                     completion(.failure(LoginError.missingData))
+                }
+                return
+            }
+            
+            let response = response as! HTTPURLResponse
+            let status = response.statusCode
+            
+            guard (200...299).contains(status) else {
+                
+                if let errorJson = try? JSONSerialization.jsonObject(with: data, options: .mutableContainers) as? Dictionary<String,Any> {
+                    if let error = errorJson["error"] as? String {
+                        DispatchQueue.main.async {
+                            completion(.failure(LoginError.unexpectedError(error: error)))
+                        }
+                    }
                 }
                 return
             }
