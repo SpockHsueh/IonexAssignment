@@ -81,6 +81,10 @@ class LoginVC: UIViewController, Coordinating {
         setupBinders()
     }
     
+    deinit {
+        print("LoginVC deinit")
+    }
+    
     // MARK: - Private Func
     private func setupConstraints() {
         view.addSubview(titleLabel)

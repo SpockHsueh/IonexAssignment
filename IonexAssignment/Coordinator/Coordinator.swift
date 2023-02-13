@@ -12,12 +12,11 @@ protocol Event {}
 
 enum LoginEvent: Event {
     case navigateToHome(user: User)
-    
 }
 
 enum HomeEvent: Event {
     case navigationToLogin
-    case showChangeTimezoneAlert(alert: UIAlertController)
+    case showAlert(alert: UIAlertController)
 }
 
 protocol Coordinator: AnyObject {

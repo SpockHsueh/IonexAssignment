@@ -36,9 +36,11 @@ class LoginCoordinator: Coordinator {
             homeCoordinator.navigationController = navigationController
             children.append(homeCoordinator)
             homeCoordinator.start()
-            
-            parentCoordinator?.childDidFinish(self)
         }
+    }
+    
+    deinit {
+        print("LoginCoordinator deinit")
     }
         
 }

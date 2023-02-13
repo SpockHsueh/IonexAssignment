@@ -32,13 +32,14 @@ class HomeCoordinator: Coordinator {
         switch type {
         case .navigationToLogin:
             _ = navigationController?.popToRootViewController(animated: false)
-        case .showChangeTimezoneAlert(let alert):
+            parentCoordinator?.childDidFinish(self)
+        case .showAlert(let alert):
             _ = navigationController?.present(alert, animated: true)
         }
     }
     
     deinit {
-        print("123")
+        print("HomeCoordinator deinit")
     }
     
 }

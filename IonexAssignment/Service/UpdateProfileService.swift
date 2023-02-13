@@ -12,12 +12,13 @@ struct UpdateProfileService {
     enum UpdateError: Error {
         case invalidURL
         case missingData
+        case unexpectedError(error: String)
     }
     
     static func update(timezone: Int,
                        objectId: String,
                        sessionToken: String,
-                       completion: @escaping (Result<Update, Error>) -> Void) {
+                       completion: @escaping (Result<Update, UpdateError>) -> Void) {
         
         guard let url = URL(string: "https://watch-master-staging.herokuapp.com/api/users/\(objectId)") else {
             completion(.failure(UpdateError.invalidURL))
@@ -41,15 +42,30 @@ struct UpdateProfileService {
         
         request.httpBody = httpBody
         
-        URLSession.shared.dataTask(with: request) { data, _, error in
+        URLSession.shared.dataTask(with: request) { data, response, error in
             
             if let error = error {
-                completion(.failure(error))
+                completion(.failure(UpdateError.unexpectedError(error: error.localizedDescription)))
                 return
             }
             
             guard let data = data else {
                 completion(.failure(UpdateError.missingData))
+                return
+            }
+            
+            let response = response as! HTTPURLResponse
+            let status = response.statusCode
+            
+            guard (200...299).contains(status) else {
+                
+                if let errorJson = try? JSONSerialization.jsonObject(with: data, options: .mutableContainers) as? Dictionary<String,String> {
+                    if let error = errorJson["error"] {
+                        DispatchQueue.main.async {
+                            completion(.failure(UpdateError.unexpectedError(error: error)))
+                        }
+                    }
+                }
                 return
             }
             
@@ -60,7 +76,7 @@ struct UpdateProfileService {
                 }
             } catch {
                 DispatchQueue.main.async {
-                    completion(.failure(error))
+                    completion(.failure(UpdateError.unexpectedError(error: error.localizedDescription)))
                 }
             }
             

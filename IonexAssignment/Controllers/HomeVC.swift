@@ -14,6 +14,7 @@ class HomeVC: UIViewController, Coordinating {
     var coordinator: Coordinator?
     var userInfo: User?
     var viewModel: HomeViewModel?
+    private var timezone: Int?
     
     // MARK: - UI Component
     
@@ -98,6 +99,7 @@ class HomeVC: UIViewController, Coordinating {
         view.backgroundColor = .white
         setupConstraints()
         setupView()
+        setupBinders()
     }
     
     deinit {
@@ -115,7 +117,7 @@ class HomeVC: UIViewController, Coordinating {
         phoneLabel.text = userInfo.phone
         timezoneLabel.text = String(userInfo.timezone)
     }
-    
+
     private func setupConstraints() {
         view.addSubview(titleLabel)
         
@@ -180,6 +182,33 @@ class HomeVC: UIViewController, Coordinating {
 
     }
     
+    private func setupBinders() {
+        
+        guard let viewModel = viewModel else {
+            return
+        }
+        
+        viewModel.updateInfo.bind { [weak self] value in
+            if let _ = value {
+                self?.alert(title: "Update Result",
+                            message: "Success", completion: {})
+                viewModel.changeProfile(user: self?.userInfo, timezome: self?.timezone)
+            }
+        }
+        
+        viewModel.updateErrorDescription.bind { [weak self] value in
+            if let value = value { self?.alert(title: "Update Result",
+                                 message: value, completion: {}) }
+        }
+        
+        viewModel.userInfo.bind { [weak self] value in
+            if let newUserInfo = value {
+                self?.userInfo = newUserInfo
+                self?.setupView()
+            }
+        }
+    }
+    
     @objc private func logoutButtonPressed() {
         let homeType: HomeEvent = .navigationToLogin
         coordinator?.eventOccurred(with: homeType)
@@ -187,18 +216,40 @@ class HomeVC: UIViewController, Coordinating {
     
     @objc private func changeTimeZoneButtonPressed() {
         
+        guard let timeZone = userInfo?.timezone else {
+            alert(title: "Oops", message: "Something Error, Please login again", completion: {})
+            return
+        }
+        
         alertWithTextField(title: "Change Timezone",
-                           placeholder: "\(String(describing: userInfo?.timezone))") { [weak self] changedTimezone in
-            self?.viewModel
+                           placeholder: "\(String(describing: timeZone))") { [weak self] changedTimezone in
+            
+            guard !changedTimezone.isEmpty else {
+                self?.alert(title: "Update Result",
+                            message: "Input data is missing", completion: {})
+                return
+            }
+                        
+            guard let changedTimezone = Int(changedTimezone),
+                  let objectId = self?.userInfo?.objectId,
+                  let sessionToken = self?.userInfo?.sessionToken
+            else {
+                return
+            }
+            self?.timezone = changedTimezone
+            self?.viewModel?.update(timezone: changedTimezone,
+                                    objectId: objectId,
+                                    sessionToken: sessionToken)
         }
     }
     
-    private func alertWithTextField(title: String? = nil, message: String? = nil, placeholder: String? = nil, completion: @escaping ((String) -> Void) = { _ in }) {
+    private func alertWithTextField(title: String? = nil, message: String? = nil, placeholder: String? = nil, completion: @escaping ((String) -> Void)) {
+        
         let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
         alert.addTextField() { newTextField in
             newTextField.placeholder = placeholder
         }
-        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel) { _ in completion("") })
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel) {_ in })
         alert.addAction(UIAlertAction(title: "Ok", style: .default) { action in
             if
                 let textFields = alert.textFields,
@@ -208,7 +259,15 @@ class HomeVC: UIViewController, Coordinating {
             else
             { completion("") }
         })
-        let homeType: HomeEvent = .showChangeTimezoneAlert(alert: alert)
+        let homeType: HomeEvent = .showAlert(alert: alert)
+        coordinator?.eventOccurred(with: homeType)
+    }
+    
+    private func alert(title: String, message: String?, completion: @escaping (() -> Void)) {
+        
+        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "Ok", style: .cancel) { _ in completion() })
+        let homeType: HomeEvent = .showAlert(alert: alert)
         coordinator?.eventOccurred(with: homeType)
     }
     
