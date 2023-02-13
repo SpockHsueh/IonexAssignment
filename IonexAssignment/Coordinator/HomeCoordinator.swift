@@ -19,16 +19,21 @@ class HomeCoordinator: Coordinator {
         let vc = HomeVC()
         vc.coordinator = self
         vc.userInfo = userInfo
+        vc.viewModel = HomeViewModel()
         navigationController?.pushViewController(vc, animated: true)
         navigationController?.setNavigationBarHidden(true, animated: false)
     }
     
     func eventOccurred(with type: Event) {
+        guard let type = type as? HomeEvent else {
+            return
+        }
+        
         switch type {
         case .navigationToLogin:
             _ = navigationController?.popToRootViewController(animated: false)
-        case .navigateToHome:
-            break
+        case .showChangeTimezoneAlert(let alert):
+            _ = navigationController?.present(alert, animated: true)
         }
     }
     

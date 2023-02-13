@@ -152,7 +152,8 @@ class LoginVC: UIViewController, Coordinating {
         
         viewModel.userInfo.bind {[ weak self] user in
             if let user = user {
-                self?.coordinator?.eventOccurred(with: .navigateToHome(user: user))
+                let loginEvent: LoginEvent = .navigateToHome(user: user)
+                self?.coordinator?.eventOccurred(with: loginEvent)
                 self?.usernameTextField.text = nil
                 self?.passwordTextField.text = nil
                 self?.view.endEditing(true)

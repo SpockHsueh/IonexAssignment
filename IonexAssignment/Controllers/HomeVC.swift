@@ -13,6 +13,7 @@ class HomeVC: UIViewController, Coordinating {
     // MARK: - Properties
     var coordinator: Coordinator?
     var userInfo: User?
+    var viewModel: HomeViewModel?
     
     // MARK: - UI Component
     
@@ -69,11 +70,11 @@ class HomeVC: UIViewController, Coordinating {
         return label
     }()
     
-    private lazy var changeInfoButton: UIButton = {
+    private lazy var changeTimezoneButton: UIButton = {
         let button = UIButton()
         button.layer.cornerRadius = 5
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.addTarget(self, action: #selector(changeInfoButtonPressed), for: .touchUpInside)
+        button.addTarget(self, action: #selector(changeTimeZoneButtonPressed), for: .touchUpInside)
         button.setTitle("Change Profile", for: .normal)
         button.setTitleColor(UIColor.white, for: .selected)
         button.backgroundColor = .black
@@ -99,14 +100,8 @@ class HomeVC: UIViewController, Coordinating {
         setupView()
     }
     
-    override func viewDidDisappear(_ animated: Bool) {
-        // TODO
-        // when back to sign up page
-        coordinator?.parentCoordinator?.childDidFinish(coordinator!)
-    }
-    
     deinit {
-        print("deinit")
+        print("homeVC deinit")
     }
     
     // MARK: - Private Func
@@ -134,7 +129,7 @@ class HomeVC: UIViewController, Coordinating {
         view.addSubview(timezoneLabel)
         
         view.addSubview(logoutButton)
-        view.addSubview(changeInfoButton)
+        view.addSubview(changeTimezoneButton)
         
         NSLayoutConstraint.activate([
             
@@ -172,13 +167,13 @@ class HomeVC: UIViewController, Coordinating {
             timezoneLabel.topAnchor.constraint(equalTo: timezoneTitleLabel.bottomAnchor, constant: 5),
             timezoneLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             
-            changeInfoButton.widthAnchor.constraint(equalTo: timezoneLabel.widthAnchor),
-            changeInfoButton.topAnchor.constraint(equalTo: timezoneLabel.bottomAnchor, constant: 20),
-            changeInfoButton.heightAnchor.constraint(equalToConstant: 40),
-            changeInfoButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            changeTimezoneButton.widthAnchor.constraint(equalTo: timezoneLabel.widthAnchor),
+            changeTimezoneButton.topAnchor.constraint(equalTo: timezoneLabel.bottomAnchor, constant: 20),
+            changeTimezoneButton.heightAnchor.constraint(equalToConstant: 40),
+            changeTimezoneButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             
-            logoutButton.widthAnchor.constraint(equalTo: changeInfoButton.widthAnchor),
-            logoutButton.topAnchor.constraint(equalTo: changeInfoButton.bottomAnchor, constant: 20),
+            logoutButton.widthAnchor.constraint(equalTo: changeTimezoneButton.widthAnchor),
+            logoutButton.topAnchor.constraint(equalTo: changeTimezoneButton.bottomAnchor, constant: 20),
             logoutButton.heightAnchor.constraint(equalToConstant: 40),
             logoutButton.centerXAnchor.constraint(equalTo: view.centerXAnchor)
         ])
@@ -186,11 +181,35 @@ class HomeVC: UIViewController, Coordinating {
     }
     
     @objc private func logoutButtonPressed() {
-        coordinator?.eventOccurred(with: .navigationToLogin)
+        let homeType: HomeEvent = .navigationToLogin
+        coordinator?.eventOccurred(with: homeType)
     }
     
-    @objc private func changeInfoButtonPressed() {
+    @objc private func changeTimeZoneButtonPressed() {
         
+        alertWithTextField(title: "Change Timezone",
+                           placeholder: "\(String(describing: userInfo?.timezone))") { [weak self] changedTimezone in
+            self?.viewModel
+        }
+    }
+    
+    private func alertWithTextField(title: String? = nil, message: String? = nil, placeholder: String? = nil, completion: @escaping ((String) -> Void) = { _ in }) {
+        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        alert.addTextField() { newTextField in
+            newTextField.placeholder = placeholder
+        }
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel) { _ in completion("") })
+        alert.addAction(UIAlertAction(title: "Ok", style: .default) { action in
+            if
+                let textFields = alert.textFields,
+                let firstTextField = textFields.first,
+                let result = firstTextField.text
+            { completion(result) }
+            else
+            { completion("") }
+        })
+        let homeType: HomeEvent = .showChangeTimezoneAlert(alert: alert)
+        coordinator?.eventOccurred(with: homeType)
     }
     
 }

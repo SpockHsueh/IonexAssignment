@@ -24,6 +24,10 @@ class LoginCoordinator: Coordinator {
     
     
     func eventOccurred(with type: Event) {
+        guard let type = type as? LoginEvent else {
+            return
+        }
+        
         switch type {
         case .navigateToHome(let user):
             let homeCoordinator = HomeCoordinator()
@@ -34,8 +38,6 @@ class LoginCoordinator: Coordinator {
             homeCoordinator.start()
             
             parentCoordinator?.childDidFinish(self)
-        case .navigationToLogin:
-            break
         }
     }
         
