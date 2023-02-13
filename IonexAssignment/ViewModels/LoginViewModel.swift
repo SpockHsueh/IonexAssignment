@@ -28,7 +28,14 @@ class LoginViewModel {
             
             switch loginRes {
             case .failure(let error):
-                self?.loginErrorDescription.value = error.localizedDescription
+                var errorMessage = ""
+                switch error {
+                case .invalidURL: errorMessage = "Invalid URL"
+                case .missingData: errorMessage = "Missing Data"
+                case .unexpectedError(let error):
+                    errorMessage = error
+                }
+                self?.loginErrorDescription.value = errorMessage
                 
             case .success(let user):
                 self?.userInfo.value = user

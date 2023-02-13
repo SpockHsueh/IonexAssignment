@@ -12,14 +12,17 @@ struct LoginService {
     enum LoginError: Error {
         case invalidURL
         case missingData
+        case unexpectedError(error: String)
     }
     
     static func login(withName name: String,
                       password: String,
-                      completion: @escaping (Result<User, Error>) -> Void) {
+                      completion: @escaping (Result<User, LoginError>) -> Void) {
         
         guard let url = URL(string: "https://watch-master-staging.herokuapp.com/api/login") else {
-            completion(.failure(LoginError.invalidURL))
+            DispatchQueue.main.async {
+                completion(.failure(LoginError.invalidURL))
+            }
             return
         }
         
@@ -43,12 +46,16 @@ struct LoginService {
         URLSession.shared.dataTask(with: request) { data, _, error in
             
             if let error = error {
-                completion(.failure(error))
+                DispatchQueue.main.async {
+                    completion(.failure(LoginError.unexpectedError(error: error.localizedDescription)))
+                }
                 return
             }
             
             guard let data = data else {
-                completion(.failure(LoginError.missingData))
+                DispatchQueue.main.async {
+                    completion(.failure(LoginError.missingData))
+                }
                 return
             }
             
@@ -56,10 +63,10 @@ struct LoginService {
                 let loginResult = try JSONDecoder().decode(User.self, from: data)
                 DispatchQueue.main.async {
                     completion(.success(loginResult))
-                }                
+                }
             } catch {
                 DispatchQueue.main.async {
-                    completion(.failure(error))
+                    completion(.failure(LoginError.unexpectedError(error: error.localizedDescription)))
                 }
             }
             

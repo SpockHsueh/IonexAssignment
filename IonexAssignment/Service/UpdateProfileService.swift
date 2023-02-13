@@ -21,7 +21,9 @@ struct UpdateProfileService {
                        completion: @escaping (Result<Update, UpdateError>) -> Void) {
         
         guard let url = URL(string: "https://watch-master-staging.herokuapp.com/api/users/\(objectId)") else {
-            completion(.failure(UpdateError.invalidURL))
+            DispatchQueue.main.async {
+                completion(.failure(UpdateError.invalidURL))
+            }
             return
         }
         
@@ -45,12 +47,16 @@ struct UpdateProfileService {
         URLSession.shared.dataTask(with: request) { data, response, error in
             
             if let error = error {
-                completion(.failure(UpdateError.unexpectedError(error: error.localizedDescription)))
+                DispatchQueue.main.async {
+                    completion(.failure(UpdateError.unexpectedError(error: error.localizedDescription)))
+                }
                 return
             }
             
             guard let data = data else {
-                completion(.failure(UpdateError.missingData))
+                DispatchQueue.main.async {
+                    completion(.failure(UpdateError.missingData))
+                }
                 return
             }
             
