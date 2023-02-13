@@ -23,8 +23,8 @@ class LoginViewModel {
     
     func login() {
         
-        LoginService.login(withName: "test2@qq.com",
-                           password: "test1234qq") { [weak self] loginRes in
+        LoginService.login(withName: username,
+                           password: password) { [weak self] loginRes in
             
             switch loginRes {
             case .failure(let error):
